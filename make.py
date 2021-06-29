@@ -200,6 +200,7 @@ async def ai(ctx, champion):
         if champion in value:
             champion = list(champs_map.keys())[list(champs_map.values()).index(value)]
             break
+    print(champion)
     # await ctx.send(champion)
     
     
