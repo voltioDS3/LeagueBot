@@ -157,7 +157,7 @@ champs_map = {
         "wukong": ['alt_name'],
         "xayah": ['alt_name'],
         "xerath": ['alt_name'],
-        5: ['xin zhao', 'xin'],
+        "XinZhao": ['xin zhao', 'xin'],
         "yasuo": ['alt_name'],
         "yone": ['alt_name'],
         "yorick": ['alt_name'],
@@ -169,7 +169,11 @@ champs_map = {
         "zoe": ['alt_name'],
         "zyra": ['alt_name'],
     }
-
+def format_champion(champion):
+    for value in champs_map.values():
+        if champion in value:
+            champion = list(champs_map.keys())[list(champs_map.values()).index(value)]
+            break
 class Consult:
     def __init__(self, champion_id, role=None):
         self.champion_id = champion_id
@@ -204,10 +208,8 @@ async def ai(ctx, champion):
         # await ctx.send(f'las runas de {champion} son : ')
         await ctx.send(file=discord.File(file))
     else:
-        if type(champion) is int:
-            olaf = Consult(champion)
-        else:
-            olaf = Consult(champion.capitalize())
+       
+        olaf = Consult(champion.capitalize())
         olaf.analyze()
         olaf.make_all_info()
         file = './all_info/popular_' + champion.capitalize() + ".png"
