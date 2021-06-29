@@ -169,6 +169,10 @@ champs_map = {
         "zoe": ['alt_name'],
         "zyra": ['alt_name'],
     }
+
+space_champs_map = {
+    "XinZhao":5
+}
 def format_champion(champion):
     for value in champs_map.values():
         if champion in value:
@@ -202,8 +206,19 @@ async def ai(ctx, champion):
             break
     print(champion)
     # await ctx.send(champion)
-    
-    
+    if champion in space_champs_map.keys():
+        if os.path.isfile('./all_info/popular_' + champion.capitalize() + ".png"):
+            file = './all_info/popular_' + champion.capitalize() + ".png"
+            # await ctx.send(f'las runas de {champion} son : ')
+            await ctx.send(file=discord.File(file))
+        else:
+            champion_number = space_champs_map[champion]
+            olaf = Consult(champion_number)
+            olaf.analyze()
+            olaf.make_all_info()
+            file = './all_info/popular_' + champion.capitalize() + ".png"
+            await ctx.send(file=discord.File(file))
+            
     if os.path.isfile('./all_info/popular_' + champion.capitalize() + ".png"):
         file = './all_info/popular_' + champion.capitalize() + ".png"
         # await ctx.send(f'las runas de {champion} son : ')
