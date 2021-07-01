@@ -1,23 +1,16 @@
 from os import execlp
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import json
 import time
 from riotwatcher import LolWatcher, ApiError
-
-# --- JOINING DATAFRAMES --- #
-# kr = pd.read_csv('KR_DATA.csv')
-# euw = pd.read_csv('EUW1_DATA.csv')
-# la = pd.read_csv('LA2_DATA.csv')
-# result = [kr, euw, la]
-# df = pd.concat(result)
-
-# --- READING THE JSON FILES FOR MAKING THE DICTIONARIES FOR RUNES , ITEMS , MYTHIC ITEMS ETC ---#
-f = open('item.json',)
-item_data = json.load(f)
-item_data = item_data['data']
-f.close()
+#--- GLOBAL DECLARATION ---#
+VERSION = '11.13.1'
+with open('api_key.txt', 'r') as f:
+    key = f.readlines()
+    data_watcher = LolWatcher(key)
+# defining the item dic and the boots dic
+item_data = data_watcher.data_dragon.items(version=VERSION)['data']
 mythic_dic = {}
 complete_dic = {}
 boots_dic = {}
@@ -30,26 +23,17 @@ for item in item_data:
         for tag in item_data[item]['tags']:
             if tag == 'Boots':
                 boots_dic[int(item)] = item_data[item]
-# print(boots_dic)
-# print(mythic_dic.keys())
 
-f = open('runesReforged.json',)
-runes_data = json.load(f)
-f.close()
-
+# defining the runes dic
+runes_data = data_watcher.data_dragon.runes_reforged(VERSION)
 runes_dic = {}
 for x in range(5):
     runes_dic[runes_data[x]['id']] = runes_data[x]
 
-
-# --- CLASS DEFINITION ---#
-
-# I defined this class because is more structuctured to obtain the data from separetly, this class is only to do that, you can put a number or a champ
-# name to start the indexing, it returns all the data, doesnt care about role
+#--- CLASS DEFINITION ---#
 
 
 class ChampionData:
-    
     def __init__(self, df):
         self.df = df
 
@@ -62,11 +46,6 @@ class ChampionData:
             return data
 
 
-# here is where the magic occurs , is the place to make consults, it is based in role type of functions, there are a special fuction for every roll also
-# there is one for the most played role,  we split the datasets in the __init___(self) part because it will be more easy this way , i am planning on
-# export this stadistics to a kind of file that we can read and then produce a image to send through a discord channel(yes this proyect is oriented to discord bot)
-
-
 class Champion:
     role_map = {
         'MIDDLE': [],
@@ -74,59 +53,34 @@ class Champion:
         'JUNGLE': []
     }
     primary_map = {
-    8100 :0,
-    8300: 1,
-    8000: 2, 
-    8400: 3,
-    8200: 4
-}  
-
-    
-    lol_watcher = LolWatcher('RGAPI-26458851-510c-426a-8623-182076ff9220')
-    
-    champions = lol_watcher.data_dragon.champions(version='11.12.1')
+        8100: 0,
+        8300: 1,
+        8000: 2,
+        8400: 3,
+        8200: 4
+    }
+    champions =  data_watcher.data_dragon.champions(version=VERSION)
     def __init__(self, champion_data, role=None):
-        # define all the data set
+        self.popular_starter = []
         self.champion_data = champion_data
-        # for identidying the champion to the user of something , might use later
         self.champion_name = champion_data['championName']
-        
         for name in self.champion_name:
             self.champion_name = name
-                    
-
-        
-        self.popular_starter = []
-        # to split the data into mid role
         self.mid_role = self.champion_data.loc[self.champion_data['lane'] == 'MIDDLE']
-
-        # to split the data into top role
         self.top_role = self.champion_data.loc[self.champion_data['lane'] == 'TOP']
-
-        # to split the data into top role
         self.jg_role = self.champion_data.loc[self.champion_data['lane'] == 'JUNGLE']
-
-        # this one is a little tricky because the role adc and support share the same lane which is bottom  this is why these two lines of code
         self.sup_role = self.champion_data.loc[self.champion_data['lane'] == 'BOTTOM']
         self.sup_role = self.sup_role.loc[self.sup_role['role'] == 'SUPPORT']
-
-        # the same method is applied to the adc role
         self.adc_role = self.champion_data.loc[self.champion_data['lane'] == 'BOTTOM']
         self.adc_role = self.sup_role.loc[self.sup_role['role'] == 'CARRY']
-
-        # i don't really know why did i done this list but maybe is to iter through them but since there will be a funciton for every role i think its  decapited
-        role_list = [self.mid_role, self.top_role,
-                     self.jg_role, self.sup_role, self.adc_role]
-
-        # we assing a random role to start the comparison to get  the popular role(the one with more games)
-        self.popular = role_list[0]
-        for role in role_list:
+        self.role_list = [self.mid_role, self.top_role,
+                          self.jg_role, self.sup_role, self.adc_role]
+        self.popular = self.role_list[0]
+        for role in self.role_list:
             # the len of a dataframe returns the numbers of rows that it has
             if len(self.popular) < len(role):
                 self.popular = role
 
-    # this function is pretty usefull, it gets all the items , runes, spels that the player used in every game and makes a dictionary with a
-    # numpy array that has (times played, winrate) it takes a dataframe as atribute
     def get_played(self, frame):
         # sellecting the data that we are interested in
         analysis = frame[['item0', 'item1', 'item2', 'item3', 'item4', 'item5', 'spell1',
@@ -297,34 +251,15 @@ class Champion:
         self.win_rate = (win_count*100) / len(self.popular['win'])
 
     def get_popular(self):
-
-        # -- GET WIRATE ---#
         self.winrate()
-        # --- END ---#
-
-        #---  GETTING ALL THE THIGS OF THE CHAMP WITH WINRATE AND PICKRATE --- #
         item_dic, spell1, spell2, primary, primary_1, primary_2, primary_3, secondary, secondary_1 = self.get_played(
             self.popular)
-
-        #--- GETTING POPULAR ITEMS AND RUNES ---#
         self.get_played_items(item_dic)
+        self.get_starters()
         primary_list, secondary_list = self.get_played_runes(primary, primary_1, primary_2,
                                                              primary_3, secondary, secondary_1)
+        return self.popular_mythic, self.popular_core, self.popular_final, self.popular_starter, self.popular_boots, primary_list, secondary_list, self.champion_name
 
-        return self.popular_mythic, self.popular_core ,self.popular_final,self.popular_starter, self.popular_boots, primary_list, secondary_list, self.champion_name
-        # --- DELETE THIS IS ONLY TO KNOW THAT THE CODE WORKS, IT IS ONLY TEMPORAL ---#
-        
-        # print(self.popular_mythic)
-        # print(self.popular_core)
-        # print(self.popular_final)
-        
-        # print(primary_list)
-        # print(secondary_list)
-        # print(spell1)
-        # print(spell2)
-        # -- END OF THE TEST PIECE OF CODE ---#
-        
-    # this function will do the same that the other does to the items , it will evaluate and keep the runes with the most playrate
     def get_played_runes(self, primary, primary_1, primary_2, primary_3, secondary, secondary_1):
         popular_primary = None
         for primar in primary.keys():
@@ -504,7 +439,7 @@ class Champion:
         popular_secondary_list = [popular_secondary, popular_secondary_1]
 
         return popular_primary_list, popular_secondary_list
-
+    
     def get_played_items(self, item_dic):
         self.popular_mythic = None
         self.popular_core = [None, None]
@@ -558,14 +493,13 @@ class Champion:
                         self.popular_boots = item
             except Exception:
                 print('exeption')
-
-    def get_played_spels(self, spell1, spell2):
-        pass
-
+    
     def get_starters(self,role=None):
         tags = self.champions['data'][self.champion_name]['tags']
-        for tag in tags:
-            partype = tag
+        print(self.champions['data'][self.champion_name]['partype'])
+        print(tags)
+        partype = self.champions['data'][self.champion_name]['partype']
+        print(partype)
         
         if role == 'jg':
             self.popular_starter.append(1)
@@ -586,12 +520,12 @@ class Champion:
                     self.popular_starter.append(2)
         elif role == None:
 
-            for tag in self.champions['data'][self.champion_name]['tags']:
+            for tag in tags:
                 if tag == "Fighter" and partype == "None":
-                    self.popular_starter.append(1055)
+                    self.popular_starter.append(1055) 
                     self.popular_starter.append(2003)
                     return
-                elif tag == "Fighter" and partype == "Mana" or partype == "Flow":
+                elif tag == "Fighter" and partype == "Mana":
                     self.popular_starter.append(1055)
                     self.popular_starter.append(2033)
                     return
@@ -605,36 +539,16 @@ class Champion:
                     return
                 if tag == "Mage":
                     self.popular_starter.append(1056)
+                    self.popular_starter.append(2033)
+                    
+                    
                     return
-                if tag == "Assasin": 
+                if tag == "Assasin" or partype == 'Energy': 
                     self.popular_starter.append(1055)
                     self.popular_starter.append(2003)
                     return
-    def get_mid(self):
+    
+    def get_boots(self):
+        print('yes')
+        print('no')
         pass
-
-    def get_top(self):
-        pass
-
-    def get_adc(self):
-        pass
-
-    def get_sup(self):
-        pass
-
-    def get_jg(self):
-        pass
-
-
-# --- TEST PART OF THE FILE, WHEN THE FILE IS READY , TRANSFORM IT TO A MODULE AND START USING IT ON OTHER FILE ---#
-# data = ChampionData(df)
-# champion_data = data.get_champion_data(2)
-# # print(champion_data)
-# annie = Champion(champion_data)
-# # print(annie.champion_name)
-# annie.get_popular()
-# annie.get_starters("jg")
-# print(annie.popular_starter)
-# print(annie.win_rate)
-
-#--- END ---#

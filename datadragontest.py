@@ -1,11 +1,13 @@
 from riotwatcher import LolWatcher, ApiError
 from PIL import Image 
+VERSION = '11.13.1'
 
+with open('api_key.txt', 'r') as f:
+    key = f.readlines()
+    data_watcher = LolWatcher(key)
 
-
-lol_watcher = LolWatcher('RGAPI-26458851-510c-426a-8623-182076ff9220')
-runes = lol_watcher.data_dragon.runes_reforged(version='11.12.1')
-items = lol_watcher.data_dragon.items(version='11.12.1')
+runes = data_watcher.data_dragon.runes_reforged(version=VERSION)
+items = data_watcher.data_dragon.items(version=VERSION)
 
 
 class Canvas:
@@ -19,6 +21,10 @@ class Canvas:
     0: (760,445),
     1: (980,445),
         
+    }
+    starter_map = {
+      0: (540,160),
+    1: (760,160),
     }
     sec_pos_map = {
         0: (300,10),
@@ -38,13 +44,13 @@ class Canvas:
     1: (760,750),
     2: (980,750),  
     }
-    runes = lol_watcher.data_dragon.runes_reforged(version='11.12.1')
-    items = lol_watcher.data_dragon.items(version='11.12.1')
+    runes = data_watcher.data_dragon.runes_reforged(version=VERSION)
+    items = data_watcher.data_dragon.items(version=VERSION)
 
-    base_path = './images/'
-    background_path = r"./images/background.png"
-    items_path = './images/img/item/'
-    def __init__(self, mythic, core, final, primary_runes, secondary_runes, champion):
+    base_path = './img/'
+    background_path = r"./background.png"
+    items_path = './' + VERSION + '/img/item/'
+    def __init__(self, mythic, core, final, primary_runes, secondary_runes, champion, starter, boots):
         self.champion = champion
         self.mythic = mythic #int
         self.core = core # a list of ints
@@ -53,11 +59,15 @@ class Canvas:
         self.secondary_runes = secondary_runes # list of ints
         self.canvas = Image.open(Canvas.background_path)
         self.canvas = self.canvas.resize(size=(1920,1000))
+        self.starter = starter
+        self.boots = boots
     def make_image(self):
         self.find_runes()
         self.find_items()
-        
-        self.canvas.save('./all_info/' + 'popular_' + self.champion + '.png')
+        self.find_starter()
+        print(self.boots)
+        # self.find_boots()
+        self.canvas.save('./all_info/' + 'popular_' + str(self.champion) + '.png')
     def find_runes(self):
         keystone = (self.primary_runes[0] // 100)*100
         if keystone == 9100:
@@ -127,7 +137,19 @@ class Canvas:
             final_img = final_img.resize(size)
             self.canvas.paste(final_img, Canvas.final_map[x])
         
-
+    def find_starter(self):
+        size = ((180,180))
+        for x in range(len(self.starter)):
+            starter_img = Image.open(Canvas.items_path + Canvas.items['data'][str(self.starter[x])]['image']['full'])
+            starter_img = starter_img.resize(size)
+            self.canvas.paste(starter_img, Canvas.starter_map[x])
+        print(self.starter)
+    
+    def find_boots(self):
+        size = ((180,180))
+        boots_img = Image.open(Canvas.items_path + Canvas.items['data'][self.boots]['image']['full'])
+        boots_img = boots_img.resize(size=size)
+        self.canvas.paste(boots_img, (1000,160))
 # photo = Canvas(6630,[3053, 3065],[3075, 6333, 3143],[8010, 9111, 9104, 8299],[8304, 8410], 1, False)
 # photo.find_runes()
 
