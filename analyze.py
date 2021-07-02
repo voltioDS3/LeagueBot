@@ -23,7 +23,7 @@ for item in item_data:
         for tag in item_data[item]['tags']:
             if tag == 'Boots':
                 boots_dic[int(item)] = item_data[item]
-
+print(boots_dic)
 # defining the runes dic
 runes_data = data_watcher.data_dragon.runes_reforged(VERSION)
 runes_dic = {}
@@ -66,12 +66,11 @@ class Champion:
         self.champion_name = champion_data['championName']
         for name in self.champion_name:
             self.champion_name = name
-        self.mid_role = self.champion_data.loc[self.champion_data['lane'] == 'MIDDLE']
-        self.top_role = self.champion_data.loc[self.champion_data['lane'] == 'TOP']
-        self.jg_role = self.champion_data.loc[self.champion_data['lane'] == 'JUNGLE']
-        self.sup_role = self.champion_data.loc[self.champion_data['lane'] == 'BOTTOM']
-        self.sup_role = self.sup_role.loc[self.sup_role['role'] == 'SUPPORT']
-        self.adc_role = self.champion_data.loc[self.champion_data['lane'] == 'BOTTOM']
+        self.mid_role = self.champion_data.loc[self.champion_data['role'] == 'MIDDLE']
+        self.top_role = self.champion_data.loc[self.champion_data['role'] == 'TOP']
+        self.jg_role = self.champion_data.loc[self.champion_data['role'] == 'JUNGLE']
+        self.sup_role = self.champion_data.loc[self.champion_data['role'] == 'UTILITY']
+        self.adc_role = self.champion_data.loc[self.champion_data['role'] == 'BOTTOM']
         self.adc_role = self.sup_role.loc[self.sup_role['role'] == 'CARRY']
         self.role_list = [self.mid_role, self.top_role,
                           self.jg_role, self.sup_role, self.adc_role]
@@ -80,7 +79,10 @@ class Champion:
             # the len of a dataframe returns the numbers of rows that it has
             if len(self.popular) < len(role):
                 self.popular = role
-
+        self.popular_role = self.popular['lane']
+        for role in self.popular_role:
+            self.popular_role = role
+        print(self.popular_role)
     def get_played(self, frame):
         # sellecting the data that we are interested in
         analysis = frame[['item0', 'item1', 'item2', 'item3', 'item4', 'item5', 'spell1',
@@ -255,7 +257,7 @@ class Champion:
         item_dic, spell1, spell2, primary, primary_1, primary_2, primary_3, secondary, secondary_1 = self.get_played(
             self.popular)
         self.get_played_items(item_dic)
-        self.get_starters()
+        self.get_starters(self.popular_role)
         primary_list, secondary_list = self.get_played_runes(primary, primary_1, primary_2,
                                                              primary_3, secondary, secondary_1)
         return self.popular_mythic, self.popular_core, self.popular_final, self.popular_starter, self.popular_boots, primary_list, secondary_list, self.champion_name
@@ -501,10 +503,11 @@ class Champion:
         partype = self.champions['data'][self.champion_name]['partype']
         print(partype)
         
-        if role == 'jg':
-            self.popular_starter.append(1)
+        if role == 'JUNGLE':
+            self.popular_starter.append(1035)
+            self.popular_starter.append(1039)
             self.popular_starter.append(2031)
-        if role == 'sup':
+        elif role == 'sup':
             for tag in self.champions['data'][self.champion_name]['tags']:
 
                 if tag == 'Marksman':
@@ -518,7 +521,7 @@ class Champion:
                 elif tag == 'Mage':
                     self.popular_starter.append(3850)
                     self.popular_starter.append(2)
-        elif role == None:
+        else:
 
             for tag in tags:
                 if tag == "Fighter" and partype == "None":
@@ -548,7 +551,4 @@ class Champion:
                     self.popular_starter.append(2003)
                     return
     
-    def get_boots(self):
-        print('yes')
-        print('no')
-        pass
+    

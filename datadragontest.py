@@ -25,6 +25,7 @@ class Canvas:
     starter_map = {
       0: (540,160),
     1: (760,160),
+    2:(980,160),
     }
     sec_pos_map = {
         0: (300,10),
@@ -66,7 +67,7 @@ class Canvas:
         self.find_items()
         self.find_starter()
         print(self.boots)
-        # self.find_boots()
+        self.find_boots()
         self.canvas.save('./all_info/' + 'popular_' + str(self.champion) + '.png')
     def find_runes(self):
         keystone = (self.primary_runes[0] // 100)*100
@@ -147,9 +148,9 @@ class Canvas:
     
     def find_boots(self):
         size = ((180,180))
-        boots_img = Image.open(Canvas.items_path + Canvas.items['data'][self.boots]['image']['full'])
+        boots_img = Image.open(Canvas.items_path + Canvas.items['data'][str(self.boots)]['image']['full'])
         boots_img = boots_img.resize(size=size)
-        self.canvas.paste(boots_img, (1000,160))
+        self.canvas.paste(boots_img, (1210,160))
 # photo = Canvas(6630,[3053, 3065],[3075, 6333, 3143],[8010, 9111, 9104, 8299],[8304, 8410], 1, False)
 # photo.find_runes()
 

@@ -36,7 +36,7 @@ champs_map = {
         "corki": ['alt_name'],
         "darius": ['alt_name'],
         "diana": ['alt_name'],
-        "drmundo": ['dr. mundo', 'dr mundo','dr'],
+        "drMundo": ['dr. mundo', 'dr mundo','dr'],
         "draven": ['alt_name'],
         "ekko": ['alt_name'],
         "elise": ['alt_name'],
