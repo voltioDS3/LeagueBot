@@ -9,7 +9,7 @@ client = commands.Bot(command_prefix=".", help_command=None)
 import os
 kr = pd.read_csv('KR_DATA.csv')
 euw = pd.read_csv('EUW1_DATA.csv')
-la = pd.read_csv('LA2_DATA.csv')
+la = pd.read_csv('NA1_DATA.csv')
 result = [kr, euw, la]
 df = pd.concat(result)
 VERSION = '11.13.1'
