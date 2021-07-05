@@ -132,7 +132,7 @@ champs_map = {
         "swain": ['alt_name'],
         "sylas": ['alt_name'],
         "syndra": ['alt_name'],
-        "tahmkench": ['tahm kench', 'tahm'],
+        "tahmKench": ['tahm kench', 'tahm', 'tam'],
         "taliyah": ['alt_name'],
         "talon": ['alt_name'],
         "taric": ['alt_name'],
