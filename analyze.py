@@ -79,7 +79,7 @@ class Champion:
             # the len of a dataframe returns the numbers of rows that it has
             if len(self.popular) < len(role):
                 self.popular = role
-        self.popular_role = self.popular['lane']
+        self.popular_role = self.popular['role']
         for role in self.popular_role:
             self.popular_role = role
         print(self.popular_role)
