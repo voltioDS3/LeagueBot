@@ -4,8 +4,17 @@ import numpy as np
 import json
 import time
 from riotwatcher import LolWatcher, ApiError
-#--- GLOBAL DECLARATION ---#
+
+# --- GLOBAL DECLARATION ---#
 VERSION = '11.13.1'
+
+euw = pd.read_csv('EUW1_DATA.csv')
+na = pd.read_csv('NA1_DATA.csv')
+kr = pd.read_csv('KR_DATA.csv')
+result = [euw, na, kr]
+df = pd.concat(result)
+
+print(euw.head())
 with open('api_key.txt', 'r') as f:
     key = f.readlines()
     data_watcher = LolWatcher(key)
@@ -30,7 +39,8 @@ runes_dic = {}
 for x in range(5):
     runes_dic[runes_data[x]['id']] = runes_data[x]
 
-#--- CLASS DEFINITION ---#
+
+# --- CLASS DEFINITION ---#
 
 
 class ChampionData:
@@ -59,7 +69,8 @@ class Champion:
         8400: 3,
         8200: 4
     }
-    champions =  data_watcher.data_dragon.champions(version=VERSION)
+    champions = data_watcher.data_dragon.champions(version=VERSION)
+
     def __init__(self, champion_data, role=None):
         self.popular_starter = []
         self.champion_data = champion_data
@@ -83,6 +94,7 @@ class Champion:
         for role in self.popular_role:
             self.popular_role = role
         print(self.popular_role)
+    # this function is for getting the items, runes ,spells, everything in form of a dictionary key(thing)/ value(np.array that has played and winrate)
     def get_played(self, frame):
         # sellecting the data that we are interested in
         analysis = frame[['item0', 'item1', 'item2', 'item3', 'item4', 'item5', 'spell1',
@@ -206,51 +218,51 @@ class Champion:
         for key in item_dic.keys():
             try:
                 item_dic[key] = item_dic[key].astype('float64')
-                item_dic[key][1] = (item_dic[key][1] / item_dic[key][0])*100
+                item_dic[key][1] = (item_dic[key][1] / item_dic[key][0]) * 100
             except Exception:
                 print('herewaws-1')
 
         for key in spell1.keys():
             spell1[key] = spell1[key].astype('float64')
-            spell1[key][1] = (spell1[key][1] / spell1[key][0])*100
+            spell1[key][1] = (spell1[key][1] / spell1[key][0]) * 100
 
         for key in spell2.keys():
             spell2[key] = spell2[key].astype('float64')
-            spell2[key][1] = (spell2[key][1] / spell2[key][0])*100
+            spell2[key][1] = (spell2[key][1] / spell2[key][0]) * 100
 
         for key in primary.keys():
             primary[key] = primary[key].astype('float64')
-            primary[key][1] = (primary[key][1] / primary[key][0])*100
+            primary[key][1] = (primary[key][1] / primary[key][0]) * 100
 
         for key in primary_1.keys():
             primary_1[key] = primary_1[key].astype('float64')
-            primary_1[key][1] = (primary_1[key][1] / primary_1[key][0])*100
+            primary_1[key][1] = (primary_1[key][1] / primary_1[key][0]) * 100
 
         for key in primary_2.keys():
             primary_2[key] = primary_2[key].astype('float64')
-            primary_2[key][1] = (primary_2[key][1] / primary_2[key][0])*100
+            primary_2[key][1] = (primary_2[key][1] / primary_2[key][0]) * 100
 
         for key in primary_3.keys():
             primary_3[key] = primary_3[key].astype('float64')
-            primary_3[key][1] = (primary_3[key][1] / primary_3[key][0])*100
+            primary_3[key][1] = (primary_3[key][1] / primary_3[key][0]) * 100
 
         for key in secondary.keys():
             secondary[key] = secondary[key].astype('float64')
-            secondary[key][1] = (secondary[key][1] / secondary[key][0])*100
+            secondary[key][1] = (secondary[key][1] / secondary[key][0]) * 100
 
         for key in secondary_1.keys():
             secondary_1[key] = secondary_1[key].astype('float64')
             secondary_1[key][1] = (
-                secondary_1[key][1] / secondary_1[key][0])*100
+                                          secondary_1[key][1] / secondary_1[key][0]) * 100
 
-        return item_dic, spell1, spell2, primary, primary_1, primary_2, primary_3, secondary, secondary_1
+        return item_dic, spell1, spell2, primary, primary_1, primary_2, primary_3, secondary, secondary_1 # this s #
 
     def winrate(self):
         win_count = 0
         for win in self.popular['win']:
             if win == 1:
                 win_count += 1
-        self.win_rate = (win_count*100) / len(self.popular['win'])
+        self.win_rate = (win_count * 100) / len(self.popular['win'])
 
     def get_popular(self):
         self.winrate()
@@ -276,13 +288,13 @@ class Champion:
             #     f'{primar} rune has {primary[primar][0]} and {primary[primar][1]} wineate')
 
         # the // is for getting only the integrer value to identify the tree bc all trees ends the same way
-        primary_tree = int(popular_primary//100)*100
+        primary_tree = int(popular_primary // 100) * 100
         if primary_tree == 9100:
             primary_tree = 8000
         if primary_tree == 9900:
             primary_tree = 8100
         primary_tree = self.primary_map[primary_tree]
-        
+
         # print(popular_primary)
 
         # FIRST SLOTH OF PRIMARY PAGE
@@ -293,13 +305,13 @@ class Champion:
             if primary1 == 8299:
                 tree = 4
             elif primary1 != 8410 and primary1 != 8299:
-                tree = int(primary1//100)*100
+                tree = int(primary1 // 100) * 100
                 if tree == 9100:
                     tree = 8000
                 if tree == 9900:
                     tree = 8100
                 tree = self.primary_map[tree]
-            
+
             if tree == primary_tree:
                 if popular_primary_1 is None:
                     popular_primary_1 = primary1
@@ -320,14 +332,13 @@ class Champion:
             if primary2 == 8299:
                 tree = 4
             elif primary2 != 8410 and primary2 != 8299:
-                tree = int(primary2//100)*100
+                tree = int(primary2 // 100) * 100
                 if tree == 9100:
                     tree = 8000
                 if tree == 9900:
                     tree = 8100
                 tree = self.primary_map[tree]
-            
-            
+
             if tree == primary_tree:
                 if popular_primary_2 is None:
                     popular_primary_2 = primary2
@@ -349,14 +360,13 @@ class Champion:
             elif primary3 == 8299:
                 tree = 4
             elif primary3 != 8410 and primary3 != 8299 and primary3 != 8242:
-                tree = int(primary3//100)*100
+                tree = int(primary3 // 100) * 100
                 if tree == 9100:
                     tree = 8000
                 if tree == 9900:
                     tree = 8100
                 tree = self.primary_map[tree]
-            
-            
+
             if tree == primary_tree:
                 if popular_primary_3 is None:
                     popular_primary_3 = primary3
@@ -370,8 +380,6 @@ class Champion:
         popular_primary_list = [
             popular_primary, popular_primary_1, popular_primary_2, popular_primary_3]
 
-
-        
         popular_secondary = None
         for second in secondary.keys():
             if second == 8242:
@@ -381,20 +389,19 @@ class Champion:
             if second == 8299:
                 tree = 4
             elif second != 8410 and second != 8299:
-                tree = int(second//100)*100
+                tree = int(second // 100) * 100
                 if tree == 9100:
                     tree = 8000
                 if tree == 9900:
                     tree = 8100
                 tree = self.primary_map[tree]
-            
+
             if tree != primary_tree:
                 if popular_secondary is None:
                     popular_secondary = second
 
                 if secondary[second][0] > secondary[popular_secondary][0] and tree != primary_tree:
                     popular_secondary = second
-
 
         if popular_secondary == 8242:
             secondary_tree = 3
@@ -404,14 +411,14 @@ class Champion:
         elif popular_secondary == 8299:
             secondary_tree = 4
         elif popular_secondary != 8410 and popular_secondary != 8299:
-            secondary_tree = (popular_secondary//100)*100
+            secondary_tree = (popular_secondary // 100) * 100
             if secondary_tree == 9100:
                 secondary_tree = 8000
             if secondary_tree == 9900:
                 secondary_tree = 8100
             secondary_tree = self.primary_map[secondary_tree]
-            
-        print(f'{secondary_tree} this is' )
+
+        print(f'{secondary_tree} this is')
         popular_secondary_1 = None
         for second1 in secondary_1.keys():
             if second1 == 8242:
@@ -423,14 +430,12 @@ class Champion:
             elif second1 == 8299:
                 tree = 4
             elif second1 != 8410 and second1 != 8299 and second1 != 8242:
-                tree = (second1//100)*100
+                tree = (second1 // 100) * 100
                 if tree == 9100:
                     tree = 8000
                 if tree == 9900:
                     tree = 8100
                 tree = self.primary_map[tree]
-            
-            
 
             if tree == secondary_tree:
                 if popular_secondary_1 is None:
@@ -441,7 +446,7 @@ class Champion:
         popular_secondary_list = [popular_secondary, popular_secondary_1]
 
         return popular_primary_list, popular_secondary_list
-    
+
     def get_played_items(self, item_dic):
         self.popular_mythic = None
         self.popular_core = [None, None]
@@ -489,20 +494,20 @@ class Champion:
                     # print(
                     #     f"{item} is a mythic {complete_dic[item]['name']} with {item_dic[item][0]} picks and {item_dic[item][1]} winrate")
                 elif item in boots_dic.keys():
-                    if self.popular_boots == None:
+                    if self.popular_boots is None:
                         self.popular_boots = item
                     elif item_dic[item][0] > item_dic[self.popular_boots][0]:
                         self.popular_boots = item
             except Exception:
-                print('exeption')
-    
-    def get_starters(self,role=None):
+                print('exeption in this')
+
+    def get_starters(self, role=None):
         tags = self.champions['data'][self.champion_name]['tags']
         print(self.champions['data'][self.champion_name]['partype'])
         print(tags)
         partype = self.champions['data'][self.champion_name]['partype']
         print(partype)
-        
+
         if role == 'JUNGLE':
             self.popular_starter.append(1035)
             self.popular_starter.append(1039)
@@ -525,7 +530,7 @@ class Champion:
 
             for tag in tags:
                 if tag == "Fighter" and partype == "None":
-                    self.popular_starter.append(1055) 
+                    self.popular_starter.append(1055)
                     self.popular_starter.append(2003)
                     return
                 elif tag == "Fighter" and partype == "Mana":
@@ -543,12 +548,15 @@ class Champion:
                 if tag == "Mage":
                     self.popular_starter.append(1056)
                     self.popular_starter.append(2033)
-                    
-                    
+
                     return
-                if tag == "Assasin" or partype == 'Energy': 
+                if tag == "Assasin" or partype == 'Energy':
                     self.popular_starter.append(1055)
                     self.popular_starter.append(2003)
                     return
-    
-    
+
+
+data = ChampionData(df)
+annie_data = data.get_champion_data(1)
+annie = Champion(annie_data)
+annie.get_popular()

@@ -47,11 +47,12 @@ class Canvas:
     }
     runes = data_watcher.data_dragon.runes_reforged(version=VERSION)
     items = data_watcher.data_dragon.items(version=VERSION)
-
+    spells = data_watcher.data_dragon.summoner_spells(version=VERSION)
+    
     base_path = './img/'
     background_path = r"./background.png"
     items_path = './' + VERSION + '/img/item/'
-    def __init__(self, mythic, core, final, primary_runes, secondary_runes, champion, starter, boots):
+    def __init__(self, mythic, core, final, primary_runes, secondary_runes, champion, starter, boots, spell1,spell2):
         self.champion = champion
         self.mythic = mythic #int
         self.core = core # a list of ints
@@ -62,6 +63,8 @@ class Canvas:
         self.canvas = self.canvas.resize(size=(1920,1000))
         self.starter = starter
         self.boots = boots
+        self.spell1 = spell1
+        self.spell2 = spell2
     def make_image(self):
         self.find_runes()
         self.find_items()
