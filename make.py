@@ -196,10 +196,10 @@ class Consult:
         champion_data = data.get_champion_data(self.champion_id)
         self.champ = Champion(champion_data)
         if self.role == None:
-            self.mythic, self.core ,self.final,self.starter, self.boots, self.primary_list, self.secondary_list,self.spell1, self.spell2, self.champion_name = self.champ.get_popular()
+            self.mythic, self.core ,self.final,self.starter, self.boots, self.primary_list, self.secondary_list, self.champion_name = self.champ.get_popular()
         print(self.primary_list)
     def make_all_info(self):
-        self.all_info = Canvas(self.mythic, self.core, self.final, self.primary_list, self.secondary_list, self.champion_id, self.starter, self.boots, self.spell1, self.spell2)
+        self.all_info = Canvas(self.mythic, self.core, self.final, self.primary_list, self.secondary_list, self.champion_id, self.starter, self.boots)
         self.all_info.make_image()
 
 @client.event

@@ -3,9 +3,9 @@ from riotwatcher import LolWatcher, ApiError
 import numpy as np
 import time
 import json
-
+import sys, getopt
 # --- Global Declaration --- #
-VERSION = '11.13.1'
+VERSION = '11.14.1'
 
 # DELETE THIS PIECE OF CODE AFTER TESTING
 # euw = pd.read_csv('EUW1_DATA.csv')
@@ -618,7 +618,7 @@ class ChampionBuild:
         self.get_starters()  # starter check
         self.get_spells(spell1, spell2)
 
-        return self.mythic, self.core, self.final, self.starter, self.boots, self.primary_runes, self.secondary_runes, self.champion_name
+        return self.mythic, self.core, self.final, self.starter, self.boots, self.primary_runes, self.secondary_runes, self.spell1, self.spell2, self.champion_name
 
 
 # all_matches = ChampionData(df)
