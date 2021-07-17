@@ -4,6 +4,7 @@ import numpy as np
 import time
 import json
 import sys, getopt
+
 # --- Global Declaration --- #
 VERSION = '11.14.1'
 
@@ -86,7 +87,6 @@ class ChampionData:
         elif role == 'BOTTOM':
             adc_games = games.loc[games['role'] == 'BOTTOM']
             return adc_games
-
 
 
 # this class will be in charge of returning the best items for the selected role(which will be specified in the champion
@@ -492,7 +492,6 @@ class ChampionBuild:
                 secondary_tree = 8100
             secondary_tree = self.primary_map[secondary_tree]
 
-
         popular_secondary_1 = None
         for second1 in secondary_1.keys():
             if second1 == 8242:
@@ -583,9 +582,9 @@ class ChampionBuild:
         # to make a fair comparison , unless there could be space for errors.
         all_dic = {}
         summoner_keys = list(spell1.keys())
-        for key in spell2.keys():
-            if key not in summoner_keys:
-                summoner_keys.append(key)
+        for key1 in spell2.keys():
+            if key1 not in summoner_keys:
+                summoner_keys.append(key1)
 
         # add all the playtime of the summoner in total
         for summoner in summoner_keys:
@@ -596,15 +595,23 @@ class ChampionBuild:
                 all_dic[summoner] = spell1[summoner]
             elif summoner in spell2.keys():
                 all_dic[summoner] = spell2[summoner]
-
+        print(all_dic)
         self.spell1 = None
-
+        self.spell2 = None
         for spell in all_dic:
             if self.spell1 is None:
                 self.spell1 = spell
             elif all_dic[spell][0] > all_dic[self.spell1][0]:
-                self.spell2 = self.spell1
                 self.spell1 = spell
+
+        del all_dic[self.spell1]
+        for spell in all_dic:
+            if self.spell2 is None:
+                self.spell2 = spell
+            elif all_dic[spell][0] > all_dic[self.spell2][0]:
+                self.spell2 = spell
+
+
         print(self.spell1)
         print(self.spell2)
 
@@ -619,7 +626,6 @@ class ChampionBuild:
         self.get_spells(spell1, spell2)
 
         return self.mythic, self.core, self.final, self.starter, self.boots, self.primary_runes, self.secondary_runes, self.spell1, self.spell2, self.champion_name
-
 
 # all_matches = ChampionData(df)
 # annie_mid_matches = all_matches.champion_data(2)

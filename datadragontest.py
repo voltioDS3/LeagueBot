@@ -1,3 +1,5 @@
+import os.path
+
 from riotwatcher import LolWatcher, ApiError
 from PIL import Image
 import sys, getopt
@@ -48,12 +50,14 @@ class Canvas:
     }
     runes = data_watcher.data_dragon.runes_reforged(version=VERSION)
     items = data_watcher.data_dragon.items(version=VERSION)
-    spells = data_watcher.data_dragon.summoner_spells(version=VERSION)
+    spells = data_watcher.data_dragon.summoner_spells(version=VERSION)['data']
 
     base_path = './img/'
     background_path = r"./background.png"
     items_path = './' + VERSION + '/img/item/'
-
+    spells_path = os.path.join(VERSION,'img','spell')
+    print(spells_path)
+    print('yes')
     def __init__(self, mythic, core, final, primary_runes, secondary_runes, champion, starter, boots, spell1, spell2):
         self.champion = champion  # this is an int now
         self.mythic = mythic  # int
@@ -74,6 +78,7 @@ class Canvas:
         self.find_starter()
         print(self.boots)
         self.find_boots()
+        self.find_spells()
         if rol is None:
             self.canvas.save('./all_info/' + 'popular_' + str(self.champion) + '.png')
         else:
@@ -161,6 +166,21 @@ class Canvas:
         boots_img = Image.open(Canvas.items_path + Canvas.items['data'][str(self.boots)]['image']['full'])
         boots_img = boots_img.resize(size=size)
         self.canvas.paste(boots_img, (1210, 160))
+
+    def find_spells(self):
+        size = ((180, 180))
+        for summoner in self.spells:
+            if self.spells[summoner]['key'] == str(self.spell1):
+                print(summoner)
+                spell1_img = Image.open(os.path.join(self.spells_path,self.spells[summoner]['image']['full']))
+
+            elif self.spells[summoner]['key'] == str(self.spell2):
+                spell2_img = Image.open(os.path.join(self.spells_path, self.spells[summoner]['image']['full']))
+
+        spell1_img = spell1_img.resize(size=size)
+        spell2_img = spell2_img.resize(size=size)
+        self.canvas.paste(spell1_img, (1210, 445))
+        self.canvas.paste(spell2_img, (1430, 445))
 # photo = Canvas(6630,[3053, 3065],[3075, 6333, 3143],[8010, 9111, 9104, 8299],[8304, 8410], 1, False)
 # photo.find_runes()
 

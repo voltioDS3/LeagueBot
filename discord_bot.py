@@ -7,6 +7,7 @@ from discord import role
 import discord
 import os
 import sys, getopt
+
 client = commands.Bot(command_prefix=".", help_command=None)
 kr = pd.read_csv('KR_DATA.csv')
 euw1 = pd.read_csv('EUW1_DATA.csv')
@@ -226,10 +227,9 @@ class Consult:
             image.make_image(self.role)
 
 
-
 def check_img(champion, rol=None):
     if rol is None:
-        file = './all_info/popular_' + str(champion) + ".png"
+        file = 'all_info/popular_' + str(champion) + ".png"
         if os.path.isfile(file):
             return file
         else:
@@ -238,7 +238,7 @@ def check_img(champion, rol=None):
             return file
 
     else:
-        file = './all_info/popular_' + str(champion) + '_' + rol + ".png"
+        file = 'all_info/popular_' + str(champion) + '_' + rol + ".png"
         if os.path.isfile(file):
             return file
         else:
@@ -256,7 +256,8 @@ async def ai(ctx, champion, aux=None, aux1=None):
             if champion in value:
                 champion = list(champ_maps.keys())[list(champ_maps.values()).index(value)]
 
-                print(check_img(champion))
+                file = check_img(champion, aux)
+                await ctx.send(file=discord.File(file))
                 break
         print(champion)
     # there are 3 possible options
@@ -276,10 +277,12 @@ async def ai(ctx, champion, aux=None, aux1=None):
                         if champion in value:
                             champion = list(champ_maps.keys())[list(champ_maps.values()).index(value)]
                             break
-                    check_img(champion, aux)
+                    file = check_img(champion, aux)
+                    await ctx.send(file=discord.File(file))
                 elif type(aux) is int:
                     # this means that is option 2
-                    check_img(champion)
+                    file = check_img(aux)
+                    await ctx.send(file=discord.File(file))
                     print(champion)
 
     if aux is not None and aux1 is not None:
@@ -300,8 +303,13 @@ async def ai(ctx, champion, aux=None, aux1=None):
                 aux1 = list(champ_maps.keys())[list(champ_maps.values()).index(value)]
         if type(champion) is int and aux1 in role_map.keys():
             print('make consult with champion and aux1')
+            file = check_img(champion, aux1)
+            print(file)
+            await ctx.send(file=discord.File(file))
         elif type(aux) is int and aux1 in role_map.keys():
             print('make consult with aux and aux1')
+            file = check_img(aux, aux1)
+            await ctx.send(file=discord.File(file))
 
 
 client.run('ODQ3NDQ3ODQxMjM2MzIwMjU3.YK-NTg.8tuP_8K9qmRmC9kelmZ-Qiqwg2Y')
