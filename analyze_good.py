@@ -537,14 +537,18 @@ class ChampionBuild:
 
                 if tag == 'Marksman':
                     self.starter.append(3862)
-                    
+                    self.starter.append(2033)
+                    self.starter.append(2033)
                     return
                 elif tag == 'Tank' or tag == 'Assasin':
                     self.starter.append(3854)
-                    self.starter.append(3858)
+                    self.starter.append(2033)
+                    self.starter.append(2033)
                     return
                 elif tag == 'Mage':
                     self.starter.append(3850)
+                    self.starter.append(2033)
+                    self.starter.append(2033)
                     
         else:
 
